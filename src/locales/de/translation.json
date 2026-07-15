@@ -1456,6 +1456,8 @@
         "meetingDetectionDescription": "Benachrichtigen, wenn ein Meeting erkannt wird, um die Aufnahme zu starten",
         "calendarReminders": "Kalendererinnerungen",
         "calendarRemindersDescription": "Benachrichtigen, wenn ein geplantes Meeting bald beginnt",
+        "autoEndMeeting": "Aufnahme automatisch beenden",
+        "autoEndMeetingDescription": "Beende die Aufnahme automatisch, wenn ein geplantes Meeting endet",
         "updates": "App-Updates",
         "updatesDescription": "Benachrichtigen, wenn eine neue Version verfügbar ist"
       },

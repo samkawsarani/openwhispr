@@ -1504,6 +1504,8 @@
         "meetingDetectionDescription": "Notificar cuando se detecta una reunión para iniciar la grabación",
         "calendarReminders": "Recordatorios del calendario",
         "calendarRemindersDescription": "Notificar cuando una reunión programada está a punto de comenzar",
+        "autoEndMeeting": "Finalizar grabación automáticamente",
+        "autoEndMeetingDescription": "Detén la grabación automáticamente cuando termine una reunión programada",
         "updates": "Actualizaciones",
         "updatesDescription": "Notificar cuando hay una nueva versión disponible"
       },

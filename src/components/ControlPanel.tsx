@@ -25,6 +25,7 @@ import {
   useIsMeetingMode,
   useIsNarrowWindow,
   useMeetingRecordingStore,
+  stopRecording as stopMeetingRecording,
 } from "../stores/meetingRecordingStore";
 import ControlPanelSidebar, { type ControlPanelView } from "./ControlPanelSidebar";
 import MeetingRecordingMount from "./MeetingRecordingMount";
@@ -385,6 +386,23 @@ export default function ControlPanel({ initialSettingsSection }: ControlPanelPro
 
   const handleExitMeetingMode = useCallback(() => {
     window.electronAPI?.restoreFromMeetingMode?.();
+  }, []);
+
+  // Auto-end an in-progress meeting recording when the associated calendar
+  // meeting reaches its scheduled end. Gated by the autoEndMeetingRecording
+  // setting. Calling stopMeetingRecording() is a no-op when nothing is
+  // recording, so this only finalizes an active meeting transcription.
+  useEffect(() => {
+    const cleanup = window.electronAPI?.onGcalMeetingEnded?.(async () => {
+      if (!useSettingsStore.getState().autoEndMeetingRecording) return;
+      if (!useMeetingRecordingStore.getState().isRecording) return;
+      try {
+        await stopMeetingRecording();
+      } catch {
+        // stop failures are surfaced via the recording store's error state
+      }
+    });
+    return () => cleanup?.();
   }, []);
 
   const copyToClipboard = useCallback(

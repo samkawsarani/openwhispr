@@ -1456,6 +1456,8 @@
         "meetingDetectionDescription": "Avvisa quando viene rilevata una riunione per avviare la registrazione",
         "calendarReminders": "Promemoria calendario",
         "calendarRemindersDescription": "Avvisa quando una riunione programmata sta per iniziare",
+        "autoEndMeeting": "Termina automaticamente la registrazione",
+        "autoEndMeetingDescription": "Interrompi la registrazione automaticamente al termine di una riunione pianificata",
         "updates": "Aggiornamenti app",
         "updatesDescription": "Avvisa quando è disponibile una nuova versione"
       },

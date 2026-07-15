@@ -744,6 +744,8 @@ export default function SettingsPage({
     setNotifyCalendarReminders,
     notifyUpdates,
     setNotifyUpdates,
+    autoEndMeetingRecording,
+    setAutoEndMeetingRecording,
     audioCuesEnabled,
     setAudioCuesEnabled,
     pauseMediaOnDictation,
@@ -2483,6 +2485,17 @@ export default function SettingsPage({
                       checked={notifyCalendarReminders}
                       onChange={setNotifyCalendarReminders}
                       disabled={!notificationsEnabled}
+                    />
+                  </SettingsRow>
+                </SettingsPanelRow>
+                <SettingsPanelRow>
+                  <SettingsRow
+                    label={t("settingsPage.general.notifications.autoEndMeeting")}
+                    description={t("settingsPage.general.notifications.autoEndMeetingDescription")}
+                  >
+                    <Toggle
+                      checked={autoEndMeetingRecording}
+                      onChange={setAutoEndMeetingRecording}
                     />
                   </SettingsRow>
                 </SettingsPanelRow>

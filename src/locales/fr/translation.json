@@ -1504,6 +1504,8 @@
         "meetingDetectionDescription": "Prévenir quand une réunion est détectée pour lancer l'enregistrement",
         "calendarReminders": "Rappels de calendrier",
         "calendarRemindersDescription": "Prévenir quand une réunion planifiée va commencer",
+        "autoEndMeeting": "Arrêter l'enregistrement automatiquement",
+        "autoEndMeetingDescription": "Arrête l'enregistrement automatiquement à la fin d'une réunion planifiée",
         "updates": "Mises à jour",
         "updatesDescription": "Prévenir quand une nouvelle version est disponible"
       },

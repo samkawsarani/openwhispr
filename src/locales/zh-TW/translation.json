@@ -1451,6 +1451,8 @@
         "meetingDetectionDescription": "偵測到會議時通知您以便開始錄音",
         "calendarReminders": "行事曆提醒",
         "calendarRemindersDescription": "預定會議即將開始時通知您",
+        "autoEndMeeting": "自動結束會議錄製",
+        "autoEndMeetingDescription": "排程會議結束時自動停止錄製",
         "updates": "應用程式更新",
         "updatesDescription": "有新版本可用時通知您"
       },

@@ -1451,6 +1451,8 @@
         "meetingDetectionDescription": "检测到会议时通知您以便开始录音",
         "calendarReminders": "日历提醒",
         "calendarRemindersDescription": "预定会议即将开始时通知您",
+        "autoEndMeeting": "自动结束会议录制",
+        "autoEndMeetingDescription": "计划会议结束时自动停止录制",
         "updates": "应用更新",
         "updatesDescription": "有新版本可用时通知您"
       },

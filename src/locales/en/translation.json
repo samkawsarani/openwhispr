@@ -1629,6 +1629,8 @@
         "meetingDetectionDescription": "Notify when a meeting is detected so you can start recording",
         "calendarReminders": "Calendar reminders",
         "calendarRemindersDescription": "Notify when a scheduled meeting is about to start",
+        "autoEndMeeting": "Auto-end meeting recording",
+        "autoEndMeetingDescription": "Stop recording automatically when a scheduled meeting ends",
         "updates": "App updates",
         "updatesDescription": "Notify when a new version is available"
       },

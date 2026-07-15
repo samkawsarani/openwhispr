@@ -1456,6 +1456,8 @@
         "meetingDetectionDescription": "会議が検出されたときに通知して録音を開始できるようにする",
         "calendarReminders": "カレンダーリマインダー",
         "calendarRemindersDescription": "予定された会議がまもなく始まるときに通知する",
+        "autoEndMeeting": "会議の録音を自動終了",
+        "autoEndMeetingDescription": "予定された会議が終了したときに録音を自動的に停止する",
         "updates": "アプリの更新",
         "updatesDescription": "新しいバージョンが利用可能になったときに通知する"
       },
