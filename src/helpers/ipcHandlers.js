@@ -1247,7 +1247,7 @@ class IPCHandlers {
           this.broadcastToWindows("folder-deleted", { id });
           if (this._noteFilesEnabled && folderName) {
             const markdownMirror = require("./markdownMirror");
-            markdownMirror.deleteFolder(folderName);
+            markdownMirror.deleteFolder(folderName, result.noteIds ?? []);
           }
         });
       }
@@ -8326,8 +8326,18 @@ class IPCHandlers {
         this._noteFilesEnabled = !!enabled;
         if (!enabled) return { success: true };
         const basePath = customPath || path.join(app.getPath("userData"), "notes");
+        const markdownMirror = require("./markdownMirror");
+        // Apply the export config before the first write so the initial mirror
+        // (and any skip-rebuild startup init) reflects the user's preferences.
+        if (options?.content || options?.filenamePrefix || options?.structure) {
+          markdownMirror.setConfig({
+            content: options.content,
+            filenamePrefix: options.filenamePrefix,
+            structure: options.structure,
+          });
+        }
         if (options?.skipRebuild) {
-          require("./markdownMirror").init(basePath);
+          markdownMirror.init(basePath);
         } else {
           this._rebuildMirror(basePath);
         }
@@ -8349,6 +8359,22 @@ class IPCHandlers {
         return { success: true };
       } catch (error) {
         debugLogger.error("Failed to set note-files path", { error: error.message }, "note-files");
+        return { success: false, error: error.message };
+      }
+    });
+
+    ipcMain.handle("note-files-set-config", async (_event, config) => {
+      try {
+        const markdownMirror = require("./markdownMirror");
+        markdownMirror.setConfig(config || {});
+        if (this._noteFilesEnabled) this._rebuildMirror();
+        return { success: true };
+      } catch (error) {
+        debugLogger.error(
+          "Failed to set note-files config",
+          { error: error.message },
+          "note-files"
+        );
         return { success: false, error: error.message };
       }
     });

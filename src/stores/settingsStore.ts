@@ -434,6 +434,9 @@ export interface SettingsState
   keepTranscriptionInClipboard: boolean;
   noteFilesEnabled: boolean;
   noteFilesPath: string;
+  noteFilesContent: string[];
+  noteFilesFilenamePrefix: "id" | "date";
+  noteFilesStructure: "folder" | "date";
 
   transcriptionMode: InferenceMode;
   remoteTranscriptionType: SelfHostedType;
@@ -658,6 +661,9 @@ export interface SettingsState
   setKeepTranscriptionInClipboard: (value: boolean) => void;
   setNoteFilesEnabled: (value: boolean) => void;
   setNoteFilesPath: (value: string) => void;
+  setNoteFilesContent: (value: string[]) => void;
+  setNoteFilesFilenamePrefix: (value: "id" | "date") => void;
+  setNoteFilesStructure: (value: "folder" | "date") => void;
   setIsSignedIn: (value: boolean) => void;
 
   setChatAgentModel: (value: string) => void;
@@ -1028,6 +1034,9 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   keepTranscriptionInClipboard: readBoolean("keepTranscriptionInClipboard", false),
   noteFilesEnabled: readBoolean("noteFilesEnabled", false),
   noteFilesPath: readString("noteFilesPath", ""),
+  noteFilesContent: readStringArray("noteFilesContent", ["enhanced", "transcript"]),
+  noteFilesFilenamePrefix: readString("noteFilesFilenamePrefix", "id") as "id" | "date",
+  noteFilesStructure: readString("noteFilesStructure", "folder") as "folder" | "date",
   isSignedIn: readBoolean("isSignedIn", false),
 
   transcriptionMode: (() => {
@@ -1630,6 +1639,16 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   setKeepTranscriptionInClipboard: createBooleanSetter("keepTranscriptionInClipboard"),
   setNoteFilesEnabled: createBooleanSetter("noteFilesEnabled"),
   setNoteFilesPath: createStringSetter("noteFilesPath"),
+  setNoteFilesContent: (value: string[]) => {
+    if (isBrowser) localStorage.setItem("noteFilesContent", JSON.stringify(value));
+    set({ noteFilesContent: value });
+  },
+  setNoteFilesFilenamePrefix: createStringSetter("noteFilesFilenamePrefix") as (
+    value: "id" | "date"
+  ) => void,
+  setNoteFilesStructure: createStringSetter("noteFilesStructure") as (
+    value: "folder" | "date"
+  ) => void,
 
   setIsSignedIn: (value: boolean) => {
     if (isBrowser) localStorage.setItem("isSignedIn", String(value));

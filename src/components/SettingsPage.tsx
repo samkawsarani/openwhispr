@@ -776,6 +776,12 @@ export default function SettingsPage({
     setNoteFilesEnabled,
     noteFilesPath,
     setNoteFilesPath,
+    noteFilesContent,
+    setNoteFilesContent,
+    noteFilesFilenamePrefix,
+    setNoteFilesFilenamePrefix,
+    noteFilesStructure,
+    setNoteFilesStructure,
     dictationSileroEnabled,
     setDictationSileroEnabled,
     noteRecordingSileroEnabled,
@@ -1095,9 +1101,19 @@ export default function SettingsPage({
   const handleNoteFilesToggle = useCallback(
     async (enabled: boolean) => {
       setNoteFilesEnabled(enabled);
-      await window.electronAPI?.noteFilesSetEnabled?.(enabled, noteFilesPath || undefined);
+      await window.electronAPI?.noteFilesSetEnabled?.(enabled, noteFilesPath || undefined, {
+        content: noteFilesContent,
+        filenamePrefix: noteFilesFilenamePrefix,
+        structure: noteFilesStructure,
+      });
     },
-    [setNoteFilesEnabled, noteFilesPath]
+    [
+      setNoteFilesEnabled,
+      noteFilesPath,
+      noteFilesContent,
+      noteFilesFilenamePrefix,
+      noteFilesStructure,
+    ]
   );
 
   const handleNoteFilesChangePath = useCallback(async () => {
@@ -1122,6 +1138,67 @@ export default function SettingsPage({
       setNoteFilesRebuilding(false);
     }
   }, [toast, t]);
+
+  // Push the current export config to the main process, which re-mirrors the
+  // vault so the new content selection / filename / layout take effect at once.
+  const pushNoteFilesConfig = useCallback(
+    (config: {
+      content: string[];
+      filenamePrefix: "id" | "date";
+      structure: "folder" | "date";
+    }) => {
+      setNoteFilesRebuilding(true);
+      Promise.resolve(window.electronAPI?.noteFilesSetConfig?.(config)).finally(() =>
+        setNoteFilesRebuilding(false)
+      );
+    },
+    []
+  );
+
+  const handleNoteFilesContentToggle = useCallback(
+    (key: string, on: boolean) => {
+      const next = on
+        ? Array.from(new Set([...noteFilesContent, key]))
+        : noteFilesContent.filter((c) => c !== key);
+      setNoteFilesContent(next);
+      pushNoteFilesConfig({
+        content: next,
+        filenamePrefix: noteFilesFilenamePrefix,
+        structure: noteFilesStructure,
+      });
+    },
+    [
+      noteFilesContent,
+      setNoteFilesContent,
+      noteFilesFilenamePrefix,
+      noteFilesStructure,
+      pushNoteFilesConfig,
+    ]
+  );
+
+  const handleNoteFilesPrefixChange = useCallback(
+    (value: "id" | "date") => {
+      setNoteFilesFilenamePrefix(value);
+      pushNoteFilesConfig({
+        content: noteFilesContent,
+        filenamePrefix: value,
+        structure: noteFilesStructure,
+      });
+    },
+    [noteFilesContent, setNoteFilesFilenamePrefix, noteFilesStructure, pushNoteFilesConfig]
+  );
+
+  const handleNoteFilesStructureChange = useCallback(
+    (value: "folder" | "date") => {
+      setNoteFilesStructure(value);
+      pushNoteFilesConfig({
+        content: noteFilesContent,
+        filenamePrefix: noteFilesFilenamePrefix,
+        structure: value,
+      });
+    },
+    [noteFilesContent, noteFilesFilenamePrefix, setNoteFilesStructure, pushNoteFilesConfig]
+  );
 
   useEffect(() => {
     let mounted = true;
@@ -2554,6 +2631,78 @@ export default function SettingsPage({
                         >
                           {t("settings.noteFiles.changePath")}
                         </Button>
+                      </SettingsRow>
+                    </SettingsPanelRow>
+                    <SettingsPanelRow>
+                      <SettingsRow
+                        label={t("settings.noteFiles.content.label")}
+                        description={t("settings.noteFiles.content.description")}
+                      >
+                        <div className="flex flex-col gap-2">
+                          {(["enhanced", "raw", "transcript"] as const).map((key) => (
+                            <label
+                              key={key}
+                              className="flex items-center justify-end gap-2 text-xs font-medium text-foreground"
+                            >
+                              {t(`settings.noteFiles.content.${key}`)}
+                              <Toggle
+                                checked={noteFilesContent.includes(key)}
+                                onChange={(on) => handleNoteFilesContentToggle(key, on)}
+                              />
+                            </label>
+                          ))}
+                        </div>
+                      </SettingsRow>
+                    </SettingsPanelRow>
+                    <SettingsPanelRow>
+                      <SettingsRow
+                        label={t("settings.noteFiles.prefix.label")}
+                        description={t("settings.noteFiles.prefix.preview", {
+                          name:
+                            noteFilesFilenamePrefix === "date"
+                              ? "2026-07-17-my-meeting.md"
+                              : "42-my-meeting.md",
+                        })}
+                      >
+                        <Select
+                          value={noteFilesFilenamePrefix}
+                          onValueChange={(v) => handleNoteFilesPrefixChange(v as "id" | "date")}
+                        >
+                          <SelectTrigger className="h-7 w-36 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="id">{t("settings.noteFiles.prefix.id")}</SelectItem>
+                            <SelectItem value="date">
+                              {t("settings.noteFiles.prefix.date")}
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </SettingsRow>
+                    </SettingsPanelRow>
+                    <SettingsPanelRow>
+                      <SettingsRow
+                        label={t("settings.noteFiles.structure.label")}
+                        description={t("settings.noteFiles.structure.description")}
+                      >
+                        <Select
+                          value={noteFilesStructure}
+                          onValueChange={(v) =>
+                            handleNoteFilesStructureChange(v as "folder" | "date")
+                          }
+                        >
+                          <SelectTrigger className="h-7 w-36 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="folder">
+                              {t("settings.noteFiles.structure.folder")}
+                            </SelectItem>
+                            <SelectItem value="date">
+                              {t("settings.noteFiles.structure.date")}
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
                       </SettingsRow>
                     </SettingsPanelRow>
                     <SettingsPanelRow>

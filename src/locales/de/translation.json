@@ -18,6 +18,25 @@
       "rebuildError": {
         "title": "Neuerstellung fehlgeschlagen",
         "description": "Die Notizdateien konnten nicht neu erstellt werden. Stellen Sie sicher, dass die Funktion aktiviert ist und der Ordner beschreibbar ist."
+      },
+      "content": {
+        "label": "Was exportiert wird",
+        "description": "Wählen Sie, welche Dateien für jede Notiz geschrieben werden",
+        "enhanced": "Verbesserte Notiz",
+        "raw": "Rohnotiz",
+        "transcript": "Transkript"
+      },
+      "prefix": {
+        "label": "Dateinamen-Präfix",
+        "preview": "Beispiel: {{name}}",
+        "id": "Notiz-ID",
+        "date": "Datum"
+      },
+      "structure": {
+        "label": "Ordnerstruktur",
+        "description": "Dateien nach In-App-Ordner oder nach Datum organisieren",
+        "folder": "In-App-Ordner",
+        "date": "Nach Datum"
       }
     },
     "meeting": {

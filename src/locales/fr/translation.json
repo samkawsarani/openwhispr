@@ -18,6 +18,25 @@
       "rebuildError": {
         "title": "Échec de la reconstruction",
         "description": "Impossible de reconstruire les fichiers de notes. Assurez-vous que la fonctionnalité est activée et que le dossier est accessible en écriture."
+      },
+      "content": {
+        "label": "Quoi exporter",
+        "description": "Choisissez quels fichiers écrire pour chaque note",
+        "enhanced": "Note améliorée",
+        "raw": "Note brute",
+        "transcript": "Transcription"
+      },
+      "prefix": {
+        "label": "Préfixe du nom de fichier",
+        "preview": "Exemple : {{name}}",
+        "id": "ID de note",
+        "date": "Date"
+      },
+      "structure": {
+        "label": "Structure des dossiers",
+        "description": "Organiser les fichiers par dossier de l'app ou par date",
+        "folder": "Dossiers de l'app",
+        "date": "Par date"
       }
     },
     "meeting": {

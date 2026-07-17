@@ -18,6 +18,25 @@
       "rebuildError": {
         "title": "重建失败",
         "description": "无法重建笔记文件。请确保已启用该功能，并且文件夹可写。"
+      },
+      "content": {
+        "label": "导出内容",
+        "description": "选择为每条笔记写入哪些文件",
+        "enhanced": "增强笔记",
+        "raw": "原始笔记",
+        "transcript": "转录"
+      },
+      "prefix": {
+        "label": "文件名前缀",
+        "preview": "示例：{{name}}",
+        "id": "笔记 ID",
+        "date": "日期"
+      },
+      "structure": {
+        "label": "文件夹结构",
+        "description": "按应用内文件夹或按日期整理文件",
+        "folder": "应用内文件夹",
+        "date": "按日期"
       }
     },
     "meeting": {

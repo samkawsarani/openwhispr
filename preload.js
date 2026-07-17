@@ -138,6 +138,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   noteFilesSetEnabled: (enabled, customPath, options) =>
     ipcRenderer.invoke("note-files-set-enabled", enabled, customPath, options),
   noteFilesSetPath: (path) => ipcRenderer.invoke("note-files-set-path", path),
+  noteFilesSetConfig: (config) => ipcRenderer.invoke("note-files-set-config", config),
   noteFilesRebuild: () => ipcRenderer.invoke("note-files-rebuild"),
   noteFilesGetDefaultPath: () => ipcRenderer.invoke("note-files-get-default-path"),
   noteFilesPickFolder: () => ipcRenderer.invoke("note-files-pick-folder"),

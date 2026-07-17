@@ -18,6 +18,25 @@
       "rebuildError": {
         "title": "再構築に失敗しました",
         "description": "ノートファイルを再構築できませんでした。機能が有効になっており、フォルダーに書き込み可能であることを確認してください。"
+      },
+      "content": {
+        "label": "エクスポート対象",
+        "description": "各ノートについて書き出すファイルを選択",
+        "enhanced": "整形済みノート",
+        "raw": "元のノート",
+        "transcript": "文字起こし"
+      },
+      "prefix": {
+        "label": "ファイル名のプレフィックス",
+        "preview": "例: {{name}}",
+        "id": "ノートID",
+        "date": "日付"
+      },
+      "structure": {
+        "label": "フォルダ構成",
+        "description": "アプリ内フォルダまたは日付でファイルを整理",
+        "folder": "アプリ内フォルダ",
+        "date": "日付別"
       }
     },
     "meeting": {

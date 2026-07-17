@@ -18,6 +18,25 @@
       "rebuildError": {
         "title": "重建失敗",
         "description": "無法重建筆記檔案。請確認功能已啟用，且資料夾可寫入。"
+      },
+      "content": {
+        "label": "匯出內容",
+        "description": "選擇為每則筆記寫入哪些檔案",
+        "enhanced": "增強筆記",
+        "raw": "原始筆記",
+        "transcript": "轉錄"
+      },
+      "prefix": {
+        "label": "檔名前綴",
+        "preview": "範例：{{name}}",
+        "id": "筆記 ID",
+        "date": "日期"
+      },
+      "structure": {
+        "label": "資料夾結構",
+        "description": "依應用程式內資料夾或依日期整理檔案",
+        "folder": "應用程式內資料夾",
+        "date": "依日期"
       }
     },
     "meeting": {

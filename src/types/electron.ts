@@ -663,9 +663,19 @@ declare global {
       noteFilesSetEnabled?: (
         enabled: boolean,
         customPath?: string,
-        options?: { skipRebuild?: boolean }
+        options?: {
+          skipRebuild?: boolean;
+          content?: string[];
+          filenamePrefix?: "id" | "date";
+          structure?: "folder" | "date";
+        }
       ) => Promise<{ success: boolean; error?: string }>;
       noteFilesSetPath?: (path: string) => Promise<{ success: boolean; error?: string }>;
+      noteFilesSetConfig?: (config: {
+        content?: string[];
+        filenamePrefix?: "id" | "date";
+        structure?: "folder" | "date";
+      }) => Promise<{ success: boolean; error?: string }>;
       noteFilesRebuild?: () => Promise<{ success: boolean; error?: string }>;
       noteFilesGetDefaultPath?: () => Promise<string>;
       noteFilesPickFolder?: () => Promise<{ canceled: boolean; path?: string }>;

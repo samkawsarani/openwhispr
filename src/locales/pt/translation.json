@@ -18,6 +18,25 @@
       "rebuildError": {
         "title": "Falha na reconstrução",
         "description": "Não foi possível reconstruir os arquivos de notas. Verifique se o recurso está ativado e se a pasta permite gravação."
+      },
+      "content": {
+        "label": "O que exportar",
+        "description": "Escolha quais arquivos gravar para cada nota",
+        "enhanced": "Nota aprimorada",
+        "raw": "Nota bruta",
+        "transcript": "Transcrição"
+      },
+      "prefix": {
+        "label": "Prefixo do nome do arquivo",
+        "preview": "Exemplo: {{name}}",
+        "id": "ID da nota",
+        "date": "Data"
+      },
+      "structure": {
+        "label": "Estrutura de pastas",
+        "description": "Organizar arquivos por pasta do app ou por data",
+        "folder": "Pastas do app",
+        "date": "Por data"
       }
     },
     "meeting": {

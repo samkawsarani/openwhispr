@@ -18,6 +18,25 @@
       "rebuildError": {
         "title": "Error al reconstruir",
         "description": "No se pudieron reconstruir los archivos de notas. Asegúrate de que la función esté habilitada y la carpeta tenga permisos de escritura."
+      },
+      "content": {
+        "label": "Qué exportar",
+        "description": "Elige qué archivos escribir para cada nota",
+        "enhanced": "Nota mejorada",
+        "raw": "Nota sin procesar",
+        "transcript": "Transcripción"
+      },
+      "prefix": {
+        "label": "Prefijo del nombre de archivo",
+        "preview": "Ejemplo: {{name}}",
+        "id": "ID de nota",
+        "date": "Fecha"
+      },
+      "structure": {
+        "label": "Estructura de carpetas",
+        "description": "Organizar archivos por carpeta de la app o por fecha",
+        "folder": "Carpetas de la app",
+        "date": "Por fecha"
       }
     },
     "meeting": {

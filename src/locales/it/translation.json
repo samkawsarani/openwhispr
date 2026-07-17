@@ -18,6 +18,25 @@
       "rebuildError": {
         "title": "Ricostruzione non riuscita",
         "description": "Impossibile ricostruire i file delle note. Assicurati che la funzione sia abilitata e che la cartella sia scrivibile."
+      },
+      "content": {
+        "label": "Cosa esportare",
+        "description": "Scegli quali file scrivere per ogni nota",
+        "enhanced": "Nota migliorata",
+        "raw": "Nota grezza",
+        "transcript": "Trascrizione"
+      },
+      "prefix": {
+        "label": "Prefisso del nome file",
+        "preview": "Esempio: {{name}}",
+        "id": "ID nota",
+        "date": "Data"
+      },
+      "structure": {
+        "label": "Struttura delle cartelle",
+        "description": "Organizza i file per cartella dell'app o per data",
+        "folder": "Cartelle dell'app",
+        "date": "Per data"
       }
     },
     "meeting": {

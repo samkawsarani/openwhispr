@@ -18,6 +18,25 @@
       "rebuildError": {
         "title": "Rebuild failed",
         "description": "Could not rebuild note files. Make sure the feature is enabled and the folder is writable."
+      },
+      "content": {
+        "label": "What to export",
+        "description": "Choose which files to write for each note",
+        "enhanced": "Enhanced note",
+        "raw": "Raw note",
+        "transcript": "Transcript"
+      },
+      "prefix": {
+        "label": "Filename prefix",
+        "preview": "Example: {{name}}",
+        "id": "Note ID",
+        "date": "Date"
+      },
+      "structure": {
+        "label": "Folder structure",
+        "description": "Organize files by in-app folder or by date",
+        "folder": "In-app folders",
+        "date": "By date"
       }
     },
     "meeting": {
