@@ -296,11 +296,6 @@
       "title": "Заметки встреч",
       "description": "Записывайте и резюмируйте встречи",
       "autoDetect": "OpenWhispr автоматически определяет, когда вы на встрече, и предлагает начать заметки — без вас ничего не записывается.",
-      "notification": {
-        "title": "Обнаружена встреча",
-        "body": "Похоже, вы на встрече. Хотите вести заметки?",
-        "cta": "Начать запись"
-      },
       "hotkeyLabel": "Горячая клавиша встречи",
       "hotkeyHint": "Необязательно — нажмите её на любой встрече, чтобы сразу начать заметку."
     },
@@ -408,6 +403,7 @@
       "showInFolderWindows": "Показать в Проводнике",
       "showInFolderLinux": "Показать в файловом менеджере",
       "retryTranscription": "Повторить расшифровку",
+      "retryTranslationMode": "Режим перевода",
       "retrying": "Повторная расшифровка…",
       "retrySuccess": "Расшифровка обновлена",
       "retryError": "Не удалось повторить расшифровку",
@@ -582,6 +578,12 @@
       "fallback": {
         "title": "Резервный режим",
         "description": "Локальный Whisper не сработал. Использован OpenAI API."
+      },
+      "translationFallback": {
+        "unreachableTitle": "Перевод недоступен",
+        "unreachableDescription": "Ваша диктовка вставлена без перевода. Проверьте настройки перевода.",
+        "failedTitle": "Не удалось выполнить перевод",
+        "failedDescription": "Вставлен исходный текст. Вы можете повторить попытку в Истории."
       },
       "noAudio": {
         "title": "Звук не обнаружен",
@@ -1013,6 +1015,7 @@
       "save": "Сохранить"
     },
     "defaultTestInput": "Привет, Whispr, какая сегодня погода?",
+    "defaultTestInputTranslate": "Сегодня прекрасная погода, хочешь прогуляться?",
     "dialogs": {
       "reset": {
         "description": "Промпт сброшен до значения по умолчанию.",
@@ -1037,6 +1040,8 @@
     },
     "test": {
       "addressHint": "Попробуйте обратиться к «{{agentName}}» для проверки режима инструкций",
+      "translateHint": "Текст будет переведён на {{language}}",
+      "translation": "Перевод",
       "aiModels": "ИИ-модели",
       "baseUrlMissing": "Базовый URL для {{provider}} не указан. Добавьте его в настройках ИИ-моделей.",
       "cleanup": "Очистка",
@@ -1056,7 +1061,9 @@
       "providerLabel": "Провайдер",
       "run": "Запустить тест",
       "customEndpoint": "Пользовательская конечная точка",
-      "apiKeyMissing": "API-ключ {{provider}} не настроен. Добавьте его в настройках ИИ-моделей."
+      "apiKeyMissing": "API-ключ {{provider}} не настроен. Добавьте его в настройках ИИ-моделей.",
+      "translationDisabled": "Включите перевод диктовки, чтобы протестировать этот промпт",
+      "noTargetLanguage": "Сначала выберите язык перевода"
     },
     "view": {
       "customPrompt": "Пользовательский промпт",
@@ -1455,6 +1462,10 @@
         "title": "Горячая клавиша голосового агента",
         "description": "Скажите, что нужно — ИИ-агент напечатает результат, а не ваши слова"
       },
+      "translationHotkey": {
+        "title": "Горячая клавиша перевода",
+        "description": "Диктуйте на любом языке — вставленный текст будет переведён"
+      },
       "microphone": {
         "description": "Выберите устройство ввода для диктовки",
         "title": "Микрофон"
@@ -1690,6 +1701,7 @@
       "tabs": {
         "dictationCleanup": "Очистка диктовки",
         "dictationAgent": "Voice Agent",
+        "dictationTranslation": "Перевод",
         "noteFormatting": "Форматирование заметок",
         "chatIntelligence": "Чат"
       }
@@ -2191,7 +2203,40 @@
       "switchToCloudForLargeFiles": "Переключитесь на OpenWhispr Cloud, чтобы транскрибировать этот файл.",
       "createAccount": "Создать аккаунт",
       "upgrade": "Обновить",
-      "switchToCloud": "OpenWhispr Cloud"
+      "switchToCloud": "OpenWhispr Cloud",
+      "orDivider": "или",
+      "urlPlaceholder": "Вставьте URL YouTube или аудиофайла",
+      "urlDownloading": "Загрузка аудио...",
+      "urlResolving": "Определение URL...",
+      "urlInvalid": "Недопустимый URL. Вставьте ссылку на YouTube или прямой URL аудиофайла.",
+      "urlVideoUnavailable": "Это видео недоступно. Возможно, оно приватное, удалено или заблокировано в вашем регионе.",
+      "urlPlaylistNotSupported": "Плейлисты не поддерживаются. Вставьте URL одного видео.",
+      "urlContentTypeInvalid": "Этот URL не указывает на аудио- или видеофайл.",
+      "urlDownloadFailed": "Ошибка загрузки. Проверьте URL и попробуйте снова.",
+      "urlCancelDownload": "Отменить загрузку",
+      "addToQueue": "Добавить в очередь",
+      "queueProgress": "{{completed}}/{{total}} завершено",
+      "cancelAll": "Отменить все",
+      "clearQueue": "Очистить",
+      "pasteUrls": "Вставьте URL (по одному на строку)",
+      "speakerDetection": "Определение говорящих",
+      "speakerDetectionDescription": "Определить разных говорящих в аудио",
+      "numSpeakersPlaceholder": "Автоопределение",
+      "downloadingModels": "Загрузка моделей...",
+      "openaiDiarizeNote": "Заменяет вашу модель транскрипции на gpt-4o-transcribe-diarize — единственную модель OpenAI с определением говорящих. Стоимость может отличаться от выбранной модели.",
+      "mistralDiarizeNote": "Определение говорящих включено без дополнительной оплаты с Voxtral.",
+      "groqDiarizeNote": "Определение говорящих недоступно с Groq. Вместо этого будет использована локальная диаризация.",
+      "batchCancelled": "Отменено",
+      "batchTranscriptionFailed": "Ошибка транскрипции",
+      "batchSaveFailed": "Не удалось сохранить заметку",
+      "batchUnknownError": "Неизвестная ошибка",
+      "removeFromQueue": "Удалить из очереди",
+      "diarizationRunsLocally": "Распознавание говорящих выполняется локально на вашем устройстве.",
+      "urlSubmit": "Добавить ссылку",
+      "urlsSkipped": "Некоторые ссылки не удалось добавить ({{n}})",
+      "queueFailed": "{{n}} с ошибкой",
+      "urlFileTooLarge": "Файл слишком большой для загрузки. Максимальный размер — 500 МБ.",
+      "urlYoutubeBlocked": "YouTube временно блокирует загрузки из вашей сети. Попробуйте снова чуть позже."
     },
     "meeting": {
       "title": "Заметки со встреч",
@@ -2408,7 +2453,9 @@
     "notSignedIn": "Не авторизован",
     "chat": "Чат",
     "inviteTeammate": "Teammitglied einladen",
-    "createWorkspace": "Workspace erstellen"
+    "createWorkspace": "Workspace erstellen",
+    "collapse": "Свернуть боковую панель",
+    "expand": "Развернуть боковую панель"
   },
   "chat": {
     "newChat": "Новый чат",
@@ -2497,6 +2544,14 @@
         "title": "Горячая клавиша недоступна",
         "description": "Не удалось зарегистрировать выбранную комбинацию. Выберите другую в настройках."
       },
+      "gpuFallback": {
+        "title": "Ускорение GPU недоступно",
+        "description": "Транскрипция выполняется на CPU. Вы можете отключить ускорение GPU в настройках."
+      },
+      "cleanupFailed": {
+        "title": "Не удалось выполнить очистку",
+        "description": "Диктовка вставлена без ИИ-очистки."
+      },
       "addedToDict": "{{words}} добавлено в ваш словарь",
       "undo": "Отменить",
       "accessibilityMissing": {
@@ -2519,6 +2574,28 @@
       "startListening": "Начать запись",
       "hideForNow": "Скрыть"
     }
+  },
+  "dictationTranslation": {
+    "title": "Перевод диктовки",
+    "description": "Отдельная горячая клавиша, вставляющая вашу диктовку в переводе на другой язык",
+    "enabled": "Включить перевод диктовки",
+    "enabledDescription": "Диктовки, начатые горячей клавишей перевода, очищаются и затем переводятся перед вставкой",
+    "sourceLanguage": "Язык речи",
+    "sourceLanguageDescription": "Язык, на котором вы диктуете — «Автоматически» подходит и для смешанной речи",
+    "targetLanguage": "Перевести на",
+    "targetLanguageDescription": "Язык вставляемого текста",
+    "targetLanguageMissing": "Выберите целевой язык, чтобы активировать горячую клавишу перевода",
+    "selectLanguage": "Выберите язык…",
+    "prompt": {
+      "title": "Промпт перевода",
+      "description": "Настройте, как модель переводит вашу диктовку"
+    },
+    "hotkeyHint": "Задайте горячую клавишу в Настройки → Общие → Горячая клавиша перевода",
+    "targetsLabel": "Языки перевода",
+    "addTarget": "Добавить язык…",
+    "activeTarget": "Активный язык перевода",
+    "removeTarget": "Удалить {{language}}",
+    "maxTargets": "До {{max}} языков"
   },
   "dictationAgent": {
     "enabled": "Включить голосового агента",
@@ -2936,5 +3013,15 @@
       "successDescription": "Willkommen bei {{name}}.",
       "errorTitle": "Einladung konnte nicht angenommen werden"
     }
+  },
+  "meetingNotification": {
+    "title": "Обнаружена встреча",
+    "body": {
+      "detected": "Похоже, вы на встрече. Хотите вести заметки?",
+      "starting": "Ваша встреча скоро начнётся. Хотите вести заметки?",
+      "underway": "Похоже, ваша встреча уже идёт. Хотите вести заметки?"
+    },
+    "start": "Вести заметки",
+    "join": "Присоединиться и вести заметки"
   }
 }

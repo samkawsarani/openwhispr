@@ -78,6 +78,12 @@ class DatabaseManager {
       } catch (err) {
         if (!err.message.includes("duplicate column")) throw err;
       }
+      // Records the dictation intent (e.g. "translation") so retry/recover re-runs the same route.
+      try {
+        this.db.exec("ALTER TABLE transcriptions ADD COLUMN route_kind TEXT");
+      } catch (err) {
+        if (!err.message.includes("duplicate column")) throw err;
+      }
 
       this.db.exec(`
         CREATE TABLE IF NOT EXISTS custom_dictionary (
@@ -196,6 +202,7 @@ class DatabaseManager {
         );
         seedFolder.run("Personal", 0);
         seedFolder.run("Meetings", 1);
+        seedFolder.run("Videos", 2);
       }
 
       try {
@@ -211,6 +218,23 @@ class DatabaseManager {
         this.db
           .prepare("UPDATE notes SET folder_id = ? WHERE folder_id IS NULL")
           .run(personalFolder.id);
+      }
+
+      // One-time seed (user_version 1): a pre-existing user-created "Videos"
+      // folder stays untouched (never promoted to default); URL downloads route
+      // to it by name. Guarded so a later delete/rename doesn't resurrect it as
+      // an undeletable default on the next launch.
+      if (this.db.pragma("user_version", { simple: true }) < 1) {
+        const videosFolder = this.db.prepare("SELECT id FROM folders WHERE name = 'Videos'").get();
+        if (!videosFolder) {
+          const maxOrder = this.db.prepare("SELECT MAX(sort_order) as m FROM folders").get();
+          this.db
+            .prepare(
+              "INSERT OR IGNORE INTO folders (name, is_default, sort_order) VALUES ('Videos', 1, ?)"
+            )
+            .run((maxOrder?.m ?? 1) + 1);
+        }
+        this.db.pragma("user_version = 1");
       }
 
       this.db.exec(`
@@ -640,6 +664,7 @@ class DatabaseManager {
       status = "completed",
       errorMessage = null,
       errorCode = null,
+      routeKind = null,
       clientTranscriptionId = randomUUID(),
     } = {}
   ) {
@@ -648,7 +673,7 @@ class DatabaseManager {
         throw new Error("Database not initialized");
       }
       const stmt = this.db.prepare(
-        "INSERT INTO transcriptions (text, raw_text, status, error_message, error_code, client_transcription_id) VALUES (?, ?, ?, ?, ?, ?)"
+        "INSERT INTO transcriptions (text, raw_text, status, error_message, error_code, route_kind, client_transcription_id) VALUES (?, ?, ?, ?, ?, ?, ?)"
       );
       const result = stmt.run(
         text,
@@ -656,6 +681,7 @@ class DatabaseManager {
         status,
         errorMessage,
         errorCode,
+        routeKind,
         clientTranscriptionId
       );
 
