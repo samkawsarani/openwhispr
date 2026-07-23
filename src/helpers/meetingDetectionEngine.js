@@ -235,7 +235,7 @@ class MeetingDetectionEngine {
           noteId: noteResult.note.id,
           folderId: meetingsFolder.id,
           event: detection.event,
-          trigger: "calendar-join",
+          trigger: "notification",
         });
 
         this.audioActivityDetector.resetPrompt();
