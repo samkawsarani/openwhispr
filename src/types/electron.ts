@@ -2005,7 +2005,7 @@ declare global {
         noteId: number;
         folderId: number;
         event: any;
-        trigger?: "hotkey" | "manual" | "calendar-join" | "notification";
+        trigger?: "hotkey" | "manual" | "calendar-join";
       } | null>;
       onMeetingNoteNavigationPending?: (callback: () => void) => () => void;
       getPendingNoteNavigation?: () => Promise<{

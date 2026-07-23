@@ -359,11 +359,11 @@ export default function ControlPanel({ initialSettingsSection }: ControlPanelPro
         event: data.event,
       });
       initializeNotes(null, 50, data.folderId);
-      // The meeting-detection notification's "Join & transcribe" / "Take notes"
-      // CTA always opens the compact side panel. Hotkey-triggered recordings only
-      // snap when the user opted into the side-panel layout.
+      // Calendar joins — the meeting-detection notification CTA and the Upcoming
+      // Meetings "Join" button — always open the compact side panel. Hotkey-
+      // triggered recordings only snap when the user opted into the side-panel layout.
       const shouldSnapToSidePanel =
-        data.trigger === "notification" ||
+        data.trigger === "calendar-join" ||
         (data.trigger === "hotkey" &&
           useSettingsStore.getState().meetingHotkeyLayoutMode === "side-panel");
       if (shouldSnapToSidePanel) {
