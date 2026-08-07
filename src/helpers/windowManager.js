@@ -19,6 +19,11 @@ const {
   WindowPositionUtil,
 } = require("./windowConfig");
 
+// Calendar reminders stay relevant until the meeting starts (they fire 1 min
+// ahead), so they linger far longer than transient mic-detection prompts.
+const CALENDAR_NOTIFICATION_TIMEOUT_MS = 2 * 60 * 1000;
+const DETECTION_NOTIFICATION_TIMEOUT_MS = 30 * 1000;
+
 class WindowManager {
   constructor() {
     this.mainWindow = null;
@@ -26,6 +31,7 @@ class WindowManager {
     this.agentWindow = null;
     this.notificationWindow = null;
     this._notificationTimeout = null;
+    this._notificationTimeoutMs = null;
     this.transcriptionPreviewWindow = null;
     this.updateNotificationWindow = null;
     this._updateNotificationDismissed = false;
@@ -133,8 +139,14 @@ class WindowManager {
     }
     if (interactive) {
       this.notificationWindow.setIgnoreMouseEvents(false);
+      // Don't auto-dismiss a prompt the user is pointing at.
+      if (this._notificationTimeout) {
+        clearTimeout(this._notificationTimeout);
+        this._notificationTimeout = null;
+      }
     } else {
       this.notificationWindow.setIgnoreMouseEvents(true, { forward: true });
+      this._armNotificationTimeout();
     }
   }
 
@@ -1231,12 +1243,11 @@ class WindowManager {
       }
     }, 3000);
 
-    this._notificationTimeout = setTimeout(() => {
-      if (this.meetingDetectionEngine) {
-        this.meetingDetectionEngine.handleNotificationTimeout();
-      }
-      this.dismissMeetingNotification();
-    }, 30000);
+    this._notificationTimeoutMs =
+      promptData.source === "calendar"
+        ? CALENDAR_NOTIFICATION_TIMEOUT_MS
+        : DETECTION_NOTIFICATION_TIMEOUT_MS;
+    this._armNotificationTimeout();
 
     this.notificationWindow.on("closed", () => {
       this.notificationWindow = null;
@@ -1245,6 +1256,20 @@ class WindowManager {
         this._notificationTimeout = null;
       }
     });
+  }
+
+  _armNotificationTimeout() {
+    if (this._notificationTimeout) {
+      clearTimeout(this._notificationTimeout);
+      this._notificationTimeout = null;
+    }
+    if (!this._notificationTimeoutMs) return;
+    this._notificationTimeout = setTimeout(() => {
+      if (this.meetingDetectionEngine) {
+        this.meetingDetectionEngine.handleNotificationTimeout();
+      }
+      this.dismissMeetingNotification();
+    }, this._notificationTimeoutMs);
   }
 
   showNotificationWindow() {
@@ -1259,6 +1284,7 @@ class WindowManager {
 
   dismissMeetingNotification() {
     this._pendingNotificationData = null;
+    this._notificationTimeoutMs = null;
     if (this._notificationReadyFallback) {
       clearTimeout(this._notificationReadyFallback);
       this._notificationReadyFallback = null;

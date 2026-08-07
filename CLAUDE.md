@@ -573,11 +573,13 @@ Detects meetings via three independent sources, orchestrated by `MeetingDetectio
 - Windows: `windows-mic-listener.exe` — WASAPI `IAudioSessionManager2` session monitoring, `--exclude-pid` for self-mic exclusion
 - Linux: `pactl subscribe` — PulseAudio source-output events
 - All platforms: Graceful fallback to polling if native binary/command unavailable
+- Event-driven listeners only report state *changes*, so the detector remembers the last known mic state and re-evaluates it when a gate lifts (dictation recording ends, dismissal cooldown expires) — a call that started while gated is still detected (tests: `test/helpers/audioActivityDetectorReeval.test.js`)
 
 **Calendar Reminders** (scheduled meetings):
 
 - `GoogleCalendarManager` fires `meetingDetectionEngine.handleCalendarReminder(event)` 1 minute before the scheduled start (`MEETING_REMINDER_LEAD_MS`) — no native OS notifications; all meeting prompts use the in-app overlay so they survive Focus/DND and screen-share notification muting
 - Calendar-sourced prompts show a Join primary action when the event has a meeting link (`getMeetingJoinUrl` in `src/helpers/meetingJoinUrl.js`, shared with the renderer's Upcoming Meetings join button) — Join opens the link and starts the note
+- Solo blocks ("hold", focus time) never fire reminders: `isNotifiableMeetingEvent` (`src/helpers/meetingNotifiability.js`) requires a conference link or at least one non-self attendee; the same filter keeps holds from labeling mic-detected prompts
 
 **UX Rules**:
 
@@ -587,6 +589,7 @@ Detects meetings via three independent sources, orchestrated by `MeetingDetectio
 - During recording (tap-to-talk or push-to-talk): ALL notifications suppressed
 - After recording: 2.5s cooldown before showing queued notifications
 - Multiple signals coalesced: one overlay at a time; a newer prompt replaces the current one
+- Auto-dismiss is per-source (calendar reminders 2 min, mic-detection prompts 30s) and paused while the pointer hovers the prompt
 - Calendar-aware: if an ongoing or imminent calendar event exists, the prompt shows the event name and links the note to the event
 - Active meeting recording (meeting mode): all detections suppressed
 

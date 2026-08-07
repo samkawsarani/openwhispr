@@ -1,4 +1,5 @@
 const debugLogger = require("./debugLogger");
+const { isNotifiableMeetingEvent } = require("./meetingNotifiability");
 
 const MEETING_REMINDER_LEAD_MS = 60 * 1000;
 
@@ -25,7 +26,9 @@ class CalendarReminderScheduler {
     }
 
     const upcoming = this.databaseManager.getUpcomingEvents(1440);
-    const next = upcoming.find((e) => !this.notifiedMeetings.has(notificationKey(e)));
+    const next = upcoming.find(
+      (e) => !this.notifiedMeetings.has(notificationKey(e)) && isNotifiableMeetingEvent(e)
+    );
     if (!next) return;
 
     const delay = new Date(next.start_time).getTime() - MEETING_REMINDER_LEAD_MS - Date.now();
@@ -75,7 +78,7 @@ class CalendarReminderScheduler {
   }
 
   onWakeFromSleep() {
-    const activeEvents = this.databaseManager.getActiveEvents();
+    const activeEvents = this.databaseManager.getActiveEvents().filter(isNotifiableMeetingEvent);
     if (activeEvents.length > 0 && !this.activeMeeting) {
       this.onMeetingStart(activeEvents[0]);
     }

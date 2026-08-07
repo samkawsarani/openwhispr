@@ -9,6 +9,9 @@ const execAsync = promisify(exec);
 const CHECK_INTERVAL_MS = process.platform === "win32" ? 15 * 1000 : 3 * 1000;
 const SUSTAINED_THRESHOLD_CHECKS = 2;
 const SUSTAINED_EVENT_DRIVEN_MS = 2 * 1000;
+// Re-evaluations trust a remembered mic state rather than a fresh OS event, so
+// give the state longer to settle (e.g. our own mic releasing after dictation).
+const REEVAL_SUSTAINED_MS = 5 * 1000;
 const COOLDOWN_MS = 5 * 60 * 1000;
 const INACTIVE_RESET_MS = 60 * 1000;
 const EXEC_OPTS = { timeout: 5000, encoding: "utf8" };
@@ -31,6 +34,8 @@ class AudioActivityDetector extends EventEmitter {
     this._eventDriven = false;
     this._resetTimer = null;
     this._startGeneration = 0;
+    this._micActive = false;
+    this._cooldownReevalTimer = null;
   }
 
   setUserRecording(active) {
@@ -39,6 +44,10 @@ class AudioActivityDetector extends EventEmitter {
       this.consecutiveChecks = 0;
       this.audioActiveStart = null;
       this._clearSustainedTimer();
+    } else {
+      // A call may have started while we were recording — those mic events were
+      // gated, and event-driven listeners won't fire again for an ongoing call.
+      this._reevaluate();
     }
     debugLogger.debug("User recording state changed", { active }, "meeting");
   }
@@ -75,11 +84,13 @@ class AudioActivityDetector extends EventEmitter {
     this._killListenerProcess();
     this._clearSustainedTimer();
     this._clearResetTimer();
+    this._clearCooldownReevalTimer();
     if (this.checkInterval) {
       clearInterval(this.checkInterval);
       this.checkInterval = null;
     }
     this._reset();
+    this._micActive = false;
     this._eventDriven = false;
     debugLogger.info("Audio activity detector stopped", {}, "meeting");
   }
@@ -89,6 +100,7 @@ class AudioActivityDetector extends EventEmitter {
     this._reset();
     this._clearSustainedTimer();
     this._clearResetTimer();
+    this._clearCooldownReevalTimer();
     debugLogger.info(
       "Audio detection dismissed, cooldown started",
       { cooldownMs: COOLDOWN_MS },
@@ -133,6 +145,53 @@ class AudioActivityDetector extends EventEmitter {
       clearTimeout(this._resetTimer);
       this._resetTimer = null;
     }
+  }
+
+  _clearCooldownReevalTimer() {
+    if (this._cooldownReevalTimer) {
+      clearTimeout(this._cooldownReevalTimer);
+      this._cooldownReevalTimer = null;
+    }
+  }
+
+  _cooldownRemainingMs() {
+    if (!this.lastDismissedAt) return 0;
+    return Math.max(0, COOLDOWN_MS - (Date.now() - this.lastDismissedAt));
+  }
+
+  _scheduleCooldownReeval(delayMs) {
+    if (this._cooldownReevalTimer) return;
+    this._cooldownReevalTimer = setTimeout(() => {
+      this._cooldownReevalTimer = null;
+      this._reevaluate();
+    }, delayMs + 250);
+  }
+
+  // Re-checks the last known mic state once a gate (user recording, dismissal
+  // cooldown) lifts. Event-driven listeners only report state *changes*, so a
+  // call that started while gated would otherwise never be detected.
+  _reevaluate() {
+    if (!this._running || !this._eventDriven) return;
+    if (!this._micActive || this.hasPrompted || this._userRecording) return;
+    if (this._cooldownRemainingMs() > 0) return;
+    if (this._sustainedTimer) return;
+
+    if (!this.audioActiveStart) this.audioActiveStart = Date.now();
+    this._sustainedTimer = setTimeout(() => {
+      this._sustainedTimer = null;
+      if (!this._micActive || this._userRecording || this.hasPrompted) return;
+      if (this._cooldownRemainingMs() > 0) return;
+
+      this.hasPrompted = true;
+      const now = Date.now();
+      const durationMs = now - this.audioActiveStart;
+      debugLogger.info(
+        "Sustained audio activity detected (re-evaluated after gate lifted)",
+        { durationMs },
+        "meeting"
+      );
+      this.emit("sustained-audio-detected", { durationMs, detectedAt: now });
+    }, REEVAL_SUSTAINED_MS);
   }
 
   _killListenerProcess() {
@@ -335,19 +394,31 @@ class AudioActivityDetector extends EventEmitter {
 
   _onMicStateChanged(active) {
     if (!this._running) return;
+
+    // Always remember the raw state — gated events below still need to be
+    // re-evaluated later, and no further event fires while the state holds.
+    this._micActive = active;
+
+    if (!active) {
+      this._clearCooldownReevalTimer();
+    }
+
     if (this._userRecording) {
-      debugLogger.debug("Mic state changed but user recording, ignoring", { active }, "meeting");
+      debugLogger.debug("Mic state changed while user recording, deferring", { active }, "meeting");
       return;
     }
-    if (this.lastDismissedAt && Date.now() - this.lastDismissedAt < COOLDOWN_MS) {
+    const cooldownRemainingMs = this._cooldownRemainingMs();
+    if (cooldownRemainingMs > 0) {
       debugLogger.debug(
         "Mic state changed but in cooldown",
-        {
-          active,
-          remainingMs: COOLDOWN_MS - (Date.now() - this.lastDismissedAt),
-        },
+        { active, remainingMs: cooldownRemainingMs },
         "meeting"
       );
+      if (active) {
+        // Re-check once the cooldown expires — this is a different call than
+        // the one that was dismissed, and no new event will fire for it.
+        this._scheduleCooldownReeval(cooldownRemainingMs);
+      }
       return;
     }
 

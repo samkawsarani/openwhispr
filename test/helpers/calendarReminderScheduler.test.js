@@ -11,6 +11,11 @@ function activeEvent(provider, id) {
     summary: `${provider} meeting`,
     start_time: new Date(now - 1000).toISOString(),
     end_time: new Date(now + 60_000).toISOString(),
+    attendees_count: 2,
+    attendees: JSON.stringify([
+      { email: "me@example.com", self: true },
+      { email: "them@example.com", self: false },
+    ]),
   };
 }
 
@@ -56,6 +61,58 @@ test("resetting a provider lets that provider's remaining event be re-armed", ()
   scheduler.scheduleNextMeeting();
 
   assert.equal(promptCount, 2);
+  scheduler.stop();
+});
+
+test("solo holds without attendees or a link never fire reminders", () => {
+  const hold = {
+    ...activeEvent("google", "hold-1"),
+    summary: "Hold",
+    attendees_count: 0,
+    attendees: null,
+    hangout_link: null,
+    conference_data: null,
+  };
+  const realMeeting = activeEvent("google", "meeting-1");
+  const databaseManager = {
+    getUpcomingEvents: () => [hold, realMeeting],
+    getActiveEvents: () => [hold, realMeeting],
+  };
+  const scheduler = new CalendarReminderScheduler(databaseManager);
+  const prompted = [];
+  scheduler.meetingDetectionEngine = {
+    handleCalendarReminder: (event) => {
+      prompted.push(event.id);
+    },
+  };
+
+  scheduler.scheduleNextMeeting();
+
+  assert.deepEqual(prompted, ["meeting-1"], "the hold must be skipped, not the meeting");
+  scheduler.stop();
+});
+
+test("waking from sleep does not prompt for an active solo hold", () => {
+  const hold = {
+    ...activeEvent("google", "hold-1"),
+    attendees_count: 0,
+    attendees: null,
+  };
+  const databaseManager = {
+    getUpcomingEvents: () => [hold],
+    getActiveEvents: () => [hold],
+  };
+  const scheduler = new CalendarReminderScheduler(databaseManager);
+  let promptCount = 0;
+  scheduler.meetingDetectionEngine = {
+    handleCalendarReminder: () => {
+      promptCount += 1;
+    },
+  };
+
+  scheduler.onWakeFromSleep();
+
+  assert.equal(promptCount, 0);
   scheduler.stop();
 });
 

@@ -1,6 +1,7 @@
 const { shell } = require("electron");
 const debugLogger = require("./debugLogger");
 const { getMeetingJoinUrl } = require("./meetingJoinUrl");
+const { isNotifiableMeetingEvent } = require("./meetingNotifiability");
 const { broadcastToWindows } = require("./windowBroadcast");
 
 const IMMINENT_THRESHOLD_MS = 5 * 60 * 1000;
@@ -128,9 +129,12 @@ class MeetingDetectionEngine {
     const calendarState = this.reminderScheduler.getActiveMeetingState();
     if (calendarState.activeMeeting) return calendarState.activeMeeting;
 
+    // Skip solo holds/blocks — a mic-detected call shouldn't get labeled with
+    // an unrelated "hold" event that has no attendees or link.
     const now = Date.now();
     return (
       calendarState.upcomingEvents?.find((evt) => {
+        if (!isNotifiableMeetingEvent(evt)) return false;
         const start = new Date(evt.start_time).getTime();
         return start - now <= IMMINENT_THRESHOLD_MS && start > now;
       }) ?? null
